@@ -5,7 +5,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"text/tabwriter"
 
 	"github.com/OrgDeBassac/releasy-ai/internal/git"
