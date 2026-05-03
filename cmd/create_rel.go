@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/OrgDeBassac/releasy-ai/internal/git"
 	"github.com/OrgDeBassac/releasy-ai/internal/semver"
