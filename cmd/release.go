@@ -95,7 +95,12 @@ var releaseCmd = &cobra.Command{
 			branchName := fmt.Sprintf("REL-%d.%d", nextV.Major, nextV.Minor)
 			fmt.Printf("Creating release branch %s...\n", branchName)
 			if err := git.CreateBranch(branchName); err != nil {
-				fmt.Printf("Warning: failed to create branch %s: %v (it might already exist)\n", branchName, err)
+				fmt.Printf("Branch %s may already exist: %v\nAttempting to check it out to make it current...\n", branchName, err)
+				if err2 := git.CheckoutBranch(branchName); err2 != nil {
+					fmt.Printf("Warning: failed to checkout branch %s: %v\n", branchName, err2)
+				} else {
+					fmt.Printf("Checked out existing branch %s\n", branchName)
+				}
 			} else {
 				fmt.Printf("Pushing branch %s to origin...\n", branchName)
 				if err := git.Push(branchName); err != nil {

@@ -140,8 +140,69 @@ func Push(ref string) error {
 	return err
 }
 
-// CreateBranch creates a new branch
+// CreateBranch creates a new branch and checks it out
 func CreateBranch(name string) error {
 	_, err := Run("checkout", "-b", name)
+	return err
+}
+
+// CheckoutBranch checks out an existing branch
+func CheckoutBranch(name string) error {
+	_, err := Run("checkout", name)
+	return err
+}
+
+// BranchExistsLocal checks if a local branch exists
+func BranchExistsLocal(name string) (bool, error) {
+	_, err := Run("show-ref", "--verify", "--quiet", "refs/heads/"+name)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+// BranchExistsRemote checks if a branch exists on origin
+func BranchExistsRemote(name string) (bool, error) {
+	out, err := Run("ls-remote", "--heads", "origin", "refs/heads/"+name)
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(out) != "", nil
+}
+
+// TagExists verifies a tag exists
+func TagExists(tag string) (bool, error) {
+	_, err := Run("rev-parse", "--verify", "refs/tags/"+tag)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+// CreateBranchAtTag creates a branch at the given tag commit and checks it out
+func CreateBranchAtTag(name, tag string) error {
+	_, err := Run("checkout", "-b", name, tag)
+	return err
+}
+
+// PushWithForce pushes a ref to origin, optionally forcing
+func PushWithForce(ref string, force bool) error {
+	if force {
+		_, err := Run("push", "--force", "origin", ref)
+		return err
+	}
+	_, err := Run("push", "origin", ref)
+	return err
+}
+
+// DeleteLocalBranch force-deletes a local branch
+func DeleteLocalBranch(name string) error {
+	_, err := Run("branch", "-D", name)
+	return err
+}
+
+// DeleteRemoteBranch deletes a remote branch on origin
+func DeleteRemoteBranch(name string) error {
+	_, err := Run("push", "origin", "--delete", name)
 	return err
 }
