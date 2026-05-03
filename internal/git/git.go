@@ -113,3 +113,16 @@ func CreateBranch(name string) error {
 	_, err := Run("checkout", "-b", name)
 	return err
 }
+
+// ListTags returns all tags matching v* sorted newest-first
+func ListTags() ([]string, error) {
+	output, err := Run("tag", "--list", "v*", "--sort=-v:refname")
+	if err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(output) == "" {
+		return []string{}, nil
+	}
+	parts := strings.Split(strings.TrimSpace(output), "\n")
+	return parts, nil
+}
