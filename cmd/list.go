@@ -103,6 +103,19 @@ var listCmd = &cobra.Command{
 			if g.tag == defaultLatest {
 				continue
 			}
+			// If a physical branch exists for this REL group, prefer it over the virtual group
+			hasReal := false
+			for _, b := range branches {
+				if b == g.key {
+					hasReal = true
+					break
+				}
+			}
+			if hasReal {
+				// ensure we don't mis-classify later by removing the virtual group entry
+				delete(groupMap, g.key)
+				continue
+			}
 			if !seen[g.key] {
 				finalBranches = append(finalBranches, g.key)
 				seen[g.key] = true
