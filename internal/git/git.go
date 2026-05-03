@@ -118,3 +118,30 @@ func GetTagInfo(tag string) (string, string, error) {
 	}
 	return date, msg, nil
 }
+
+// IsClean checks if the working directory is clean
+func IsClean() (bool, error) {
+	output, err := Run("status", "--porcelain")
+	if err != nil {
+		return false, err
+	}
+	return output == "", nil
+}
+
+// CreateTag creates a new local tag
+func CreateTag(version string) error {
+	_, err := Run("tag", version)
+	return err
+}
+
+// Push pushes a ref to origin
+func Push(ref string) error {
+	_, err := Run("push", "origin", ref)
+	return err
+}
+
+// CreateBranch creates a new branch
+func CreateBranch(name string) error {
+	_, err := Run("checkout", "-b", name)
+	return err
+}
