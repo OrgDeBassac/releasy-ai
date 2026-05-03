@@ -10,6 +10,7 @@ import (
 )
 
 var dryRun bool
+var createRel bool
 
 var releaseCmd = &cobra.Command{
 	Use:   "release [major|minor|patch]",
@@ -89,8 +90,8 @@ var releaseCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Create branch for Major/Minor
-		if releaseType == "major" || releaseType == "minor" {
+		// Create branch for Major/Minor only if --create-rel flag is set
+		if (releaseType == "major" || releaseType == "minor") && createRel {
 			branchName := fmt.Sprintf("REL-%d.%d", nextV.Major, nextV.Minor)
 			fmt.Printf("Creating release branch %s...\n", branchName)
 			if err := git.CreateBranch(branchName); err != nil {
@@ -102,6 +103,8 @@ var releaseCmd = &cobra.Command{
 					os.Exit(1)
 				}
 			}
+		} else if releaseType == "major" || releaseType == "minor" {
+			fmt.Printf("Skipping creation of REL- branch (use --create-rel to enable)\n")
 		}
 
 		// Push tag
@@ -118,5 +121,6 @@ var releaseCmd = &cobra.Command{
 
 func init() {
 	releaseCmd.Flags().BoolVarP(&dryRun, "dry-run", "d", false, "Display next version without applying changes")
+	releaseCmd.Flags().BoolVar(&createRel, "create-rel", false, "Create a REL- branch when releasing (default: false)")
 	rootCmd.AddCommand(releaseCmd)
 }
