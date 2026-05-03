@@ -28,18 +28,8 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Include default branch as it may carry released versions
+		// Determine default branch (do not modify branches slice here)
 		defaultBranch, _ := git.GetDefaultBranch()
-		foundDefault := false
-		for _, b := range branches {
-			if b == defaultBranch {
-				foundDefault = true
-				break
-			}
-		}
-		if !foundDefault {
-			branches = append([]string{defaultBranch}, branches...)
-		}
 
 		// Gather tags and derive virtual REL-MAJOR.MINOR groups
 		tags, err := git.ListTags()
@@ -86,15 +76,29 @@ var listCmd = &cobra.Command{
 			return groups[i].minor > groups[j].minor
 		})
 
-		// Prepare final branch list: virtual groups first, then real branches (avoid duplicates)
+		// Prepare final branch list per requested order:
+		// 1) default branch
+		// 2) virtual REL groups (sorted by version desc)
+		// 3) other branches (alphabetical)
 		finalBranches := []string{}
 		seen := make(map[string]bool)
+
+		// 1) default branch
+		if defaultBranch != "" {
+			finalBranches = append(finalBranches, defaultBranch)
+			seen[defaultBranch] = true
+		}
+
+		// 2) virtual groups
 		for _, g := range groups {
 			if !seen[g.key] {
 				finalBranches = append(finalBranches, g.key)
 				seen[g.key] = true
 			}
 		}
+
+		// 3) remaining real branches sorted alphabetically
+		sort.Strings(branches)
 		for _, b := range branches {
 			if !seen[b] {
 				finalBranches = append(finalBranches, b)
