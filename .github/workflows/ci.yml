@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        go-version: ["1.20", "1.21"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ${{ env.GOMODCACHE }}
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+
+      - name: Install golangci-lint (optional)
+        shell: bash
+        run: |
+          if ! command -v golangci-lint >/dev/null 2>&1; then
+            echo "Installing golangci-lint"
+            go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest || true
+            export PATH="$PATH:$(go env GOPATH)/bin"
+          else
+            echo "golangci-lint already available"
+          fi
+
+      - name: Lint (if available)
+        shell: bash
+        run: |
+          if command -v golangci-lint >/dev/null 2>&1; then
+            golangci-lint run ./...
+          else
+            echo "golangci-lint not available — skipping lint"
+          fi
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Summary
+        run: echo "Go CI job finished on ${{ runner.os }} (Go ${{ matrix.go-version }})"
