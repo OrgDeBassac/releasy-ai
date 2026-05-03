@@ -19,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: 'latest'
+          go-version: '1.26.2'
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -27,9 +27,9 @@ jobs:
           path: |
             ~/.cache/go-build
             ${{ env.GOMODCACHE }}
-          key: ${{ runner.os }}-go-latest-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-1.26.2-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-latest-
+            ${{ runner.os }}-go-1.26.2-
 
       - name: Install golangci-lint (optional)
         shell: bash
@@ -58,4 +58,4 @@ jobs:
         run: go test -v ./...
 
       - name: Summary
-        run: echo "Go CI job finished on ${{ runner.os }} (Go latest)"
+        run: echo "Go CI job finished on ${{ runner.os }} (Go 1.26.2)"
