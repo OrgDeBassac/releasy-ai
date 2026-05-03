@@ -1,0 +1,29 @@
+name: macOS Build
+
+on:
+  push:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.26.2'
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          echo "Building on macOS"
+          GOOS=darwin GOARCH=$(go env GOARCH) go build -v -o release-cli ./...
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Summary
+        run: echo "macOS build finished"
