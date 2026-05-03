@@ -32,15 +32,15 @@ func TestParse(t *testing.T) {
 
 func TestIncrements(t *testing.T) {
 	v := Version{1, 2, 3}
-	
+
 	if next := v.NextMajor(); next != (Version{2, 0, 0}) {
 		t.Errorf("NextMajor = %v, want v2.0.0", next)
 	}
-	
+
 	if next := v.NextMinor(); next != (Version{1, 3, 0}) {
 		t.Errorf("NextMinor = %v, want v1.3.0", next)
 	}
-	
+
 	if next := v.NextPatch(); next != (Version{1, 2, 4}) {
 		t.Errorf("NextPatch = %v, want v1.2.4", next)
 	}

@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"github.com/OrgDeBassac/releasy-ai/internal/git"
 	"github.com/OrgDeBassac/releasy-ai/internal/semver"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +18,7 @@ var releaseCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		releaseType := args[0]
-		
+
 		clean, err := git.IsClean()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error checking repository status: %v\n", err)
