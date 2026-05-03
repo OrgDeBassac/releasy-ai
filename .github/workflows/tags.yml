@@ -84,7 +84,23 @@ jobs:
         with:
           path: artifacts
 
+      - name: Upload assets to release (robust)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+        run: |
+          set -euo pipefail
+          echo "Preparing upload base URL from: ${UPLOAD_URL}"
+          upload_url="${UPLOAD_URL%{*}"
+          echo "Upload base URL: ${upload_url}"
+          find artifacts -type f | while read -r f; do
+            name=$(basename "$f")
+            echo "Uploading $name"
+            encoded_name=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "$name")
+            curl -S --fail -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" --data-binary @"$f" "${upload_url}?name=${encoded_name}"
+          done
       - name: Upload assets to release
+        if: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
