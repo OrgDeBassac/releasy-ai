@@ -42,10 +42,9 @@ jobs:
 
           # Package the binary
           if [ "${GOOS}" = "windows" ]; then
-            apt-get update -y || true
-            apt-get install -y zip || true
-            (cd out && zip -j "${BIN_BASENAME}.zip" "${BIN_NAME}")
-            rm -f out/${BIN_NAME}
+            # Use PowerShell Compress-Archive on Windows runner (apt-get not available)
+            pwsh -NoProfile -Command "Compress-Archive -Path \"out/${BIN_NAME}\" -DestinationPath \"out/${BIN_BASENAME}.zip\" -Force"
+            rm -f "out/${BIN_NAME}"
           else
             tar -C out -czf "out/${BIN_BASENAME}.tar.gz" "${BIN_NAME}"
             rm -f out/${BIN_NAME}
