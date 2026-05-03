@@ -38,7 +38,7 @@ jobs:
 
           mkdir -p out
           echo "Building ${BIN_NAME} (GOOS=${GOOS})"
-          GOOS=${GOOS} GOARCH=$(go env GOARCH) go build -o out/${BIN_NAME} ./...
+          GOOS=${GOOS} GOARCH=$(go env GOARCH) go build -o out/${BIN_NAME} .
 
           # Package the binary
           if [ "${GOOS}" = "windows" ]; then

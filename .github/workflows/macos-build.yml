@@ -20,7 +20,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "Building on macOS"
-          GOOS=darwin GOARCH=$(go env GOARCH) go build -v -o releasy-cli ./...
+          GOOS=darwin GOARCH=$(go env GOARCH) go build -v -o releasy-cli .
 
       - name: Test
         run: go test -v ./...
