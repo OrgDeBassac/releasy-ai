@@ -21,7 +21,7 @@ jobs:
         with:
           go-version: '1.26.2'
 
-      - name: Build
+      - name: Build and package
         shell: bash
         run: |
           set -euo pipefail
@@ -29,17 +29,28 @@ jobs:
             ubuntu-latest) GOOS=linux ;;
             macos-latest) GOOS=darwin ;;
             windows-latest) GOOS=windows ;;
-            *) echo "Unknown runner ${matrix.os}"; exit 1 ;;
+            *) echo "Unknown runner ${{ matrix.os }}"; exit 1 ;;
           esac
 
-          BIN_NAME="release-cli-${{ github.ref_name }}-${{ matrix.os }}"
-          if [ "${GOOS}" = "windows" ]; then
-            BIN_NAME="${BIN_NAME}.exe"
-          fi
+          BIN_BASENAME="release-cli-${{ github.ref_name }}-${{ matrix.os }}"
+          BIN_NAME="${BIN_BASENAME}"
+          if [ "${GOOS}" = "windows" ]; then BIN_NAME="${BIN_NAME}.exe"; fi
 
           mkdir -p out
           echo "Building ${BIN_NAME} (GOOS=${GOOS})"
           GOOS=${GOOS} GOARCH=$(go env GOARCH) go build -o out/${BIN_NAME} ./...
+
+          # Package the binary
+          if [ "${GOOS}" = "windows" ]; then
+            apt-get update -y || true
+            apt-get install -y zip || true
+            (cd out && zip -j "${BIN_BASENAME}.zip" "${BIN_NAME}")
+            rm -f out/${BIN_NAME}
+          else
+            tar -C out -czf "out/${BIN_BASENAME}.tar.gz" "${BIN_NAME}"
+            rm -f out/${BIN_NAME}
+          fi
+
           ls -lh out
 
       - name: Upload build artifact
@@ -76,10 +87,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "Uploading files in artifacts/ to release ${UPLOAD_URL}"
-          for f in $(find artifacts -type f); do
+          # Find files and upload
+          find artifacts -type f | while read -r f; do
             name=$(basename "$f")
             echo "Uploading $name"
-            # Upload via GitHub Releases upload_url
             curl -s --fail -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
               -H "Content-Type: application/octet-stream" \
