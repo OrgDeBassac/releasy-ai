@@ -108,11 +108,23 @@ var listCmd = &cobra.Command{
 		for _, branch := range finalBranches {
 			var tag, date, message, status string
 			if t, ok := groupMap[branch]; ok {
+				// virtual group
 				tag = t
 				status = "virtual"
 				if d, m, err := git.GetTagInfo(tag); err == nil {
-					date = d
-					message = m
+					// date: YYYY-MM-DD
+					if idx := strings.Index(d, "T"); idx != -1 {
+						date = d[:idx]
+					} else {
+						date = d
+					}
+					// truncate message to 50 chars (rune-safe)
+					runes := []rune(m)
+					if len(runes) > 50 {
+						message = string(runes[:50]) + "..."
+					} else {
+						message = m
+					}
 				}
 			} else {
 				// real branch
@@ -124,8 +136,17 @@ var listCmd = &cobra.Command{
 				} else {
 					tag = t
 					if d, m, err := git.GetTagInfo(tag); err == nil {
-						date = d
-						message = m
+						if idx := strings.Index(d, "T"); idx != -1 {
+							date = d[:idx]
+						} else {
+							date = d
+						}
+						runes := []rune(m)
+						if len(runes) > 50 {
+							message = string(runes[:50]) + "..."
+						} else {
+							message = m
+						}
 					}
 				}
 				status = "stable"
