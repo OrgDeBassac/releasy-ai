@@ -76,6 +76,14 @@ var listCmd = &cobra.Command{
 			return groups[i].minor > groups[j].minor
 		})
 
+		// Determine latest tag on default branch
+		defaultLatest := ""
+		if defaultBranch != "" {
+			if lt, err := git.GetLatestTag(defaultBranch); err == nil {
+				defaultLatest = lt
+			}
+		}
+
 		// Prepare final branch list per requested order:
 		// 1) default branch
 		// 2) virtual REL groups (sorted by version desc)
@@ -91,6 +99,10 @@ var listCmd = &cobra.Command{
 
 		// 2) virtual groups
 		for _, g := range groups {
+			// Skip virtual REL group when its latest tag equals the default branch latest
+			if g.tag == defaultLatest {
+				continue
+			}
 			if !seen[g.key] {
 				finalBranches = append(finalBranches, g.key)
 				seen[g.key] = true
