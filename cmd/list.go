@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"release-cli/internal/git"
+	"github.com/OrgDeBassac/releasy-ai/internal/git"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"

@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"release-cli/internal/git"
-	"release-cli/internal/semver"
+	"github.com/OrgDeBassac/releasy-ai/internal/git"
+	"github.com/OrgDeBassac/releasy-ai/internal/semver"
 
 	"github.com/spf13/cobra"
 )

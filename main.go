@@ -1,7 +1,7 @@
 package main
 
 import (
-	"release-cli/cmd"
+	"github.com/OrgDeBassac/releasy-ai/cmd"
 )
 
 func main() {
