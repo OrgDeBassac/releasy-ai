@@ -87,33 +87,6 @@ func GetLatestTag(ref string) (string, error) {
 	return output, nil
 }
 
-// IsClean checks if the working directory is clean
-func IsClean() (bool, error) {
-	output, err := Run("status", "--porcelain")
-	if err != nil {
-		return false, err
-	}
-	return output == "", nil
-}
-
-// CreateTag creates a new local tag
-func CreateTag(version string) error {
-	_, err := Run("tag", version)
-	return err
-}
-
-// Push pushes a ref to origin
-func Push(ref string) error {
-	_, err := Run("push", "origin", ref)
-	return err
-}
-
-// CreateBranch creates a new branch
-func CreateBranch(name string) error {
-	_, err := Run("checkout", "-b", name)
-	return err
-}
-
 // ListTags returns all tags matching v* sorted newest-first
 func ListTags() ([]string, error) {
 	output, err := Run("tag", "--list", "v*", "--sort=-v:refname")
@@ -125,4 +98,23 @@ func ListTags() ([]string, error) {
 	}
 	parts := strings.Split(strings.TrimSpace(output), "\n")
 	return parts, nil
+}
+
+// GetTagInfo returns the commit date (ISO 8601) and subject message for a tag
+func GetTagInfo(tag string) (string, string, error) {
+	// Use git show to get committer date in ISO 8601 and the subject
+	out, err := Run("show", "-s", "--format=%cI%n%s", tag)
+	if err != nil {
+		return "", "", err
+	}
+	lines := strings.SplitN(out, "\n", 2)
+	date := ""
+	msg := ""
+	if len(lines) >= 1 {
+		date = strings.TrimSpace(lines[0])
+	}
+	if len(lines) == 2 {
+		msg = strings.TrimSpace(lines[1])
+	}
+	return date, msg, nil
 }
