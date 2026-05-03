@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"github.com/OrgDeBassac/releasy-ai/internal/git"
+	"os"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
@@ -24,6 +24,19 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Include default branch as it may carry released versions
+		defaultBranch, _ := git.GetDefaultBranch()
+		foundDefault := false
+		for _, b := range branches {
+			if b == defaultBranch {
+				foundDefault = true
+				break
+			}
+		}
+		if !foundDefault {
+			branches = append([]string{defaultBranch}, branches...)
+		}
+
 		if len(branches) == 0 {
 			fmt.Println("No REL- branches found.")
 			return
@@ -40,10 +53,10 @@ var listCmd = &cobra.Command{
 			if tag == "" {
 				tag = "no tags"
 			}
-			
+
 			// Simple status check for now
 			status := "stable"
-			
+
 			fmt.Fprintf(w, "%s\t%s\t%s\n", branch, tag, status)
 		}
 		w.Flush()

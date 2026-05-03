@@ -54,6 +54,25 @@ func GetReleaseBranches() ([]string, error) {
 	return result, nil
 }
 
+// GetDefaultBranch attempts to determine the repository's default branch (e.g., main)
+func GetDefaultBranch() (string, error) {
+	// Try to resolve origin/HEAD -> origin/main
+	out, err := Run("rev-parse", "--abbrev-ref", "origin/HEAD")
+	if err == nil && out != "" {
+		// out is typically "origin/main"
+		return strings.TrimPrefix(out, "origin/"), nil
+	}
+
+	// Fallback: try symbolic-ref on refs/remotes/origin/HEAD
+	out, err = Run("symbolic-ref", "--short", "refs/remotes/origin/HEAD")
+	if err == nil && out != "" {
+		return strings.TrimPrefix(out, "origin/"), nil
+	}
+
+	// As a last resort, assume 'main'
+	return "main", nil
+}
+
 // GetLatestTag returns the most recent semver tag reachable from a ref
 func GetLatestTag(ref string) (string, error) {
 	// git describe --tags --abbrev=0 --match "v*" <ref>
