@@ -44,7 +44,13 @@ func GetReleaseBranches() ([]string, error) {
 	var result []string
 
 	for _, b := range branches {
-		name := strings.TrimPrefix(b, "origin/")
+		name := b
+		// Normalize possible remote prefixes returned by --format
+		name = strings.TrimPrefix(name, "remotes/origin/")
+		name = strings.TrimPrefix(name, "origin/")
+		name = strings.TrimPrefix(name, "refs/remotes/origin/")
+		name = strings.TrimPrefix(name, "refs/heads/")
+		name = strings.TrimSpace(name)
 		if !uniqueBranches[name] {
 			uniqueBranches[name] = true
 			result = append(result, name)
