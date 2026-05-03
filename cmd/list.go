@@ -102,14 +102,17 @@ var listCmd = &cobra.Command{
 		}
 
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-		fmt.Fprintln(w, "BRANCH\tLATEST TAG\tSTATUS")
+		fmt.Fprintln(w, "BRANCH\tLATEST TAG\tDATE\tMESSAGE\tSTATUS")
 
 		for _, branch := range finalBranches {
-			var tag string
-			var status string
+			var tag, date, message, status string
 			if t, ok := groupMap[branch]; ok {
 				tag = t
 				status = "virtual"
+				if d, m, err := git.GetTagInfo(tag); err == nil {
+					date = d
+					message = m
+				}
 			} else {
 				// real branch
 				t, err := git.GetLatestTag(branch)
@@ -119,11 +122,15 @@ var listCmd = &cobra.Command{
 					tag = "no tags"
 				} else {
 					tag = t
+					if d, m, err := git.GetTagInfo(tag); err == nil {
+						date = d
+						message = m
+					}
 				}
 				status = "stable"
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\n", branch, tag, status)
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", branch, tag, date, message, status)
 		}
 		w.Flush()
 	},
