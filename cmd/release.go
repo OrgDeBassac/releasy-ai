@@ -46,7 +46,7 @@ var releaseCmd = &cobra.Command{
 
 		v, err := semver.Parse(latestTag)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing latest tag %s: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error parsing latest tag %s: %v\n", latestTag, err)
 			os.Exit(1)
 		}
 
