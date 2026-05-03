@@ -73,7 +73,10 @@ var releaseCmd = &cobra.Command{
 
 		fmt.Printf("\nReady to release %s. Confirm? [y/N]: ", nextV.String())
 		var response string
-		fmt.Scanln(&response)
+		if _, err := fmt.Scanln(&response); err != nil {
+			// If input fails (e.g., EOF), treat as empty response
+			response = ""
+		}
 		if response != "y" && response != "Y" {
 			fmt.Println("Release cancelled.")
 			return
